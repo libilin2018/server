@@ -1,0 +1,5 @@
+{
+    "editor.lineHeight": 24,
+    "editor.fontLigatures": true,
+    "prettier.tabWidth": 4,
+}
