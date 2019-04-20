@@ -26,6 +26,10 @@ router.post('/login', (req, res, next) => {
           path: '/',
           maxAge: 1000*60*60
         })
+        res.cookie('userName', doc.userName, {
+          path: '/',
+          maxAge: 1000*60*60
+        })
         res.json({
           status: '0',
           msg: '登录成功',
@@ -41,6 +45,34 @@ router.post('/login', (req, res, next) => {
       }
     }
   })
+})
+
+router.post('/logout', (req, res, next) => {
+  res.cookie('userId', '', {
+    path: '/',
+    maxAge: -1
+  })
+  res.cookie('userName', '', {
+    path: '/',
+    maxAge: -1
+  })
+  res.json({
+    status: '0',
+    msg: '已安全退出',
+    msg: ''
+  })
+})
+
+router.get('/checklogin', (req, res, next) => {
+  if (req.cookies.userId) {
+    res.json({
+      status: '0',
+      msg: '',
+      result: {
+        userName: req.cookies.userName
+      }
+    })
+  }
 })
 
 module.exports = router;

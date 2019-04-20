@@ -19,7 +19,7 @@ mongoose.connection.on("disconnected", function () {
     console.log("MongoDB connected disconnected.")
 });
 
-router.get('/', function (req, res, next) {
+router.get('/list', function (req, res, next) {
     // console.log(req.query.id);
     let page = parseInt(req.query.page);
     let pageSize = parseInt(req.query.pageSize);
@@ -65,77 +65,77 @@ router.get('/', function (req, res, next) {
     // res.end('hello world');
 })
 
-// router.post("/addCart", function (req, res, next) {
-//     let userId = '100000077',
-//         productId = req.body.productId;
-//     User.findOne({userId}, (err, userDoc) => {
-//         if (err) {
-//             res.json({
-//                 status: '1',
-//                 msg: err.message
-//             })
-//         } else {
-//             if (userDoc) {
-//                 let goodsItem = '';
-//                 userDoc.cartList.forEach(item => {
-//                     if (item.productId == productId) {
-//                         goodsItem = item;
-//                         item.productNum++;
-//                     }
-//                 });
-//                 if (goodsItem) {
-//                     userDoc.save((err1, doc1) => {
-//                         if (err1) {
-//                             res.json({
-//                                 status: '1',
-//                                 msg: err1.message
-//                             })
-//                         } else {
-//                             res.json({
-//                                 status: '0',
-//                                 msg: '插入成功'
-//                             })
-//                         }
-//                     })
-//                 } else {
-//                     Goods.findOne({productId: productId}, (err2, doc2) => {
-//                         if (err2) {
-//                             res.json({
-//                                 status: '1',
-//                                 msg: err2.message
-//                             })
-//                         } else {
-//                             if (doc2) {
-//                                 let newObj = {
-//                                     _id: doc2._id,
-//                                     productId: doc2.productId,
-//                                     productName: doc2.productName,
-//                                     salePrice: doc2.salePrice,
-//                                     productImage: doc2.productImage,
-//                                     productNum: 1,
-//                                     checked: 1
-//                                 }
-//                                 userDoc.cartList.push(newObj);
-//                                 userDoc.save((err3, doc3) => {
-//                                     if (err3) {
-//                                         res.json({
-//                                             status: '1',
-//                                             msg: err3.message
-//                                         })
-//                                     } else {
-//                                         res.json({
-//                                             status: '0',
-//                                             msg: '插入成功'
-//                                         })
-//                                     }
-//                                 })
-//                             }
-//                         }
-//                     })
-//                 }
-//             }
-//         }
-//     })
-// })
+router.post("/addCart", function (req, res, next) {
+    let userId = '100000077',
+        productId = req.body.productId;
+    User.findOne({userId}, (err, userDoc) => {
+        if (err) {
+            res.json({
+                status: '1',
+                msg: err.message
+            })
+        } else {
+            if (userDoc) {
+                let goodsItem = '';
+                userDoc.cartList.forEach(item => {
+                    if (item.productId == productId) {
+                        goodsItem = item;
+                        item.productNum++;
+                    }
+                });
+                if (goodsItem) {
+                    userDoc.save((err1, doc1) => {
+                        if (err1) {
+                            res.json({
+                                status: '1',
+                                msg: err1.message
+                            })
+                        } else {
+                            res.json({
+                                status: '0',
+                                msg: '添加购物车成功'
+                            })
+                        }
+                    })
+                } else {
+                    Goods.findOne({productId: productId}, (err2, doc2) => {
+                        if (err2) {
+                            res.json({
+                                status: '1',
+                                msg: err2.message
+                            })
+                        } else {
+                            if (doc2) {
+                                let newObj = {
+                                    _id: doc2._id,
+                                    productId: doc2.productId,
+                                    productName: doc2.productName,
+                                    salePrice: doc2.salePrice,
+                                    productImage: doc2.productImage,
+                                    productNum: 1,
+                                    checked: 1
+                                }
+                                userDoc.cartList.push(newObj);
+                                userDoc.save((err3, doc3) => {
+                                    if (err3) {
+                                        res.json({
+                                            status: '1',
+                                            msg: err3.message
+                                        })
+                                    } else {
+                                        res.json({
+                                            status: '0',
+                                            msg: '插入成功'
+                                        })
+                                    }
+                                })
+                            }
+                        }
+                    })
+                }
+            }
+        }
+    })
+})
 
 module.exports = router;
