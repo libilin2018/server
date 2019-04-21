@@ -75,4 +75,54 @@ router.get('/checklogin', (req, res, next) => {
   }
 })
 
+router.get('/cartlist', (req, res, next) => {
+  let userId = req.cookies.userId;
+  User.findOne({
+    userId
+  }, (err, doc) => {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: 'err.message',
+        result: ''
+      })
+    } else {
+      res.json({
+        status: '0',
+        msg: '',
+        result: doc.cartList
+      })
+    }
+  })
+})
+
+router.post('/cartdel', (req, res, next) => {
+  let userId = req.cookies.userId,
+      productId = req.body.productId;
+  console.log(userId, productId)
+  User.update({
+    userId
+  }, {
+    $pull: {
+      'cartList': {
+        'productId': productId
+      }
+    }
+  }, (err, doc) => {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      })
+    } else {
+      res.json({
+        status: '0',
+        msg: '',
+        result: ''
+      })
+    }
+  })
+})
+
 module.exports = router;
