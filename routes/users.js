@@ -105,7 +105,7 @@ router.post('/cartdel', (req, res, next) => {
   }, {
     $pull: {
       'cartList': {
-        'productId': productId
+        productId
       }
     }
   }, (err, doc) => {
@@ -121,6 +121,70 @@ router.post('/cartdel', (req, res, next) => {
         msg: '',
         result: ''
       })
+    }
+  })
+})
+
+router.post('/cartedit', (req, res, next) => {
+  let userId = req.cookies.userId,
+      productId = req.body.productId,
+      productNum = req.body.productNum,
+      checked = req.body.checked;
+  console.log(checked);
+  User.update({
+    userId,
+    "cartList.productId": productId
+  }, {
+    "cartList.$.productNum": productNum,
+    "cartList.$.checked": checked
+  }, (err, doc) => {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      })
+    } else {
+      res.json({
+        status: '0',
+        msg: 'success',
+        result: ''
+      })
+    }
+  })
+})
+
+router.post('/cartCheckAll', (req, res, next) => {
+  let userId = req.cookies.userId,
+      checked = req.body.checkAll ? '1' : '0';
+  User.findOne({ userId }, (err, user) => {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      })
+    } else {
+      if (user) {
+        user.cartList.forEach(item => {
+          item.checked = checked;
+        });
+        user.save((err1, doc) => {
+          if (err1) {
+            res.json({
+              status: '1',
+              msg: err.message,
+              result: ''
+            })
+          } else {
+            res.json({
+              status: '0',
+              msg: 'success',
+              result: ''
+            })
+          }
+        })
+      }
     }
   })
 })
