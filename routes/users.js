@@ -3,10 +3,6 @@ var router = express.Router();
 var User = require('../models/users');
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
 router.post('/login', (req, res, next) => {
   let param = {
     userName: req.body.userName,
@@ -185,6 +181,25 @@ router.post('/cartCheckAll', (req, res, next) => {
           }
         })
       }
+    }
+  })
+})
+
+router.get('/userAddress', (req, res, next) => {
+  let userId = req.cookies.userId;
+  User.findOne({ userId }, (err, doc) => {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      })
+    } else {
+      res.json({
+        status: '0',
+        msg: 'success',
+        result: doc.addressList
+      })
     }
   })
 })
