@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var User = require("../models/users");
+require('./../utils/util');
 
 /* GET users listing. */
 router.post("/login", (req, res, next) => {
@@ -287,5 +288,64 @@ router.post("/delAddress", (req, res, next) => {
         }
     );
 });
+
+router.post('/payMent', (req, res, next) => {
+    let userId = req.cookies.userId,
+        orderTotal = req.body.orderTotal,
+        addressId = req.body.addressId;
+    User.findOne({ userId }, (err, user) => {
+        if (err) {
+            res.json({
+                status: '1',
+                msg: err.message,
+                result: ''
+            })
+        } else {
+            let address = '',
+                goodsList = [];
+            user.addressList.forEach(item => {
+                if (addressId == item.addressId) {
+                    address = item;
+                    return;
+                }
+            })
+            goodsList = user.cartList.filter(item => {
+                return item.checked == '1';
+            })
+            let r1 = Math.floor(Math.random()*10),
+                r2 = Math.floor(Math.random()*10),
+                platform = '168';
+            let sysDate = new Date().Format('yyyyMMddhhmmss'),
+                createDate = new Date().Format('yyyy-MM-dd hh:mm:ss');
+            let orderId = platform + r1 + sysDate + r2;
+            let order = {
+                orderId,
+                orderTotal: orderTotal,
+                addressInfo: address,
+                goodsList,
+                orderStatus: '1',
+                createDate
+            };
+            user.orderList.push(order);
+            user.save((err1, doc) => {
+                if (err1) {
+                    res.json({
+                        status: '1',
+                        msg: err.message,
+                        result: ''
+                    })
+                } else {
+                    res.json({
+                        status: '0',
+                        msg: 'success',
+                        result: {
+                            orderId
+                        }
+                    })
+                }
+            })
+        }
+    })
+})
 
 module.exports = router;
