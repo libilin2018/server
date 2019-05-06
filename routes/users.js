@@ -100,7 +100,6 @@ router.get("/cartlist", (req, res, next) => {
 router.post("/cartdel", (req, res, next) => {
     let userId = req.cookies.userId,
         productId = req.body.productId;
-    console.log(userId, productId);
     User.update(
         {
             userId
@@ -343,6 +342,58 @@ router.post('/payMent', (req, res, next) => {
                         }
                     })
                 }
+            })
+        }
+    })
+})
+
+router.get('/orderSuccess', (req, res, next) => {
+    let userId = req.cookies.userId,
+        orderId = req.query.orderId;
+    User.findOne({ userId }, (err, user) => {
+        if (err) {
+            res.json({
+                status: '1',
+                msg: err.message,
+                result: ''
+            })
+        } else {
+            let orderList = user.orderList,
+                orderTotal = 0;
+            orderList.forEach(item => {
+                if (item.orderId == orderId) {
+                    orderTotal = item.orderTotal;
+                }
+            })
+            res.json({
+                status: '0',
+                msg: '',
+                result: {
+                    orderTotal
+                }
+            })
+        }
+    })
+})
+
+router.get('/cartCount', (req, res, next) => {
+    let userId = req.cookies.userId;
+    User.findOne({ userId }, (err, user) => {
+        if (err) {
+            res.json({
+                status: '1',
+                msg: err.message,
+                result: ''
+            })
+        } else {
+            let cartCount = 0;
+            user.cartList.map(item => {
+                cartCount += item.productNum;
+            })
+            res.json({
+                status: '0',
+                msg: '',
+                result: cartCount
             })
         }
     })
