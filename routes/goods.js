@@ -6,25 +6,25 @@ var Goods = require('../models/goods');
 var User = require('../models/users');
 
 //连接MongoDB数据库
-mongoose.connect('mongodb://119.29.173.107:27017/dome');
-mongoose.connection.on("connected", function () {
+mongoose.connect('mongodb://119.29.173.107:27017/demo');
+mongoose.connection.on("connected", function() {
     console.log("MongoDB connected success.")
 });
 
-mongoose.connection.on("error", function () {
+mongoose.connection.on("error", function() {
     console.log("MongoDB connected fail.")
 });
 
-mongoose.connection.on("disconnected", function () {
+mongoose.connection.on("disconnected", function() {
     console.log("MongoDB connected disconnected.")
 });
 
-router.get('/list', function (req, res, next) {
+router.get('/list', function(req, res, next) {
     // console.log(req.query.id);
     let page = parseInt(req.query.page);
     let pageSize = parseInt(req.query.pageSize);
     let sort = parseInt(req.query.sort);
-    let skip = (page - 1)*pageSize;
+    let skip = (page - 1) * pageSize;
     let priceRange = req.query.sortPriceRange.split('-');
     let priceGt = parseInt(priceRange[0]);
     let priceLte = parseInt(priceRange[1])
@@ -40,35 +40,35 @@ router.get('/list', function (req, res, next) {
     }
     // MyModel.find({}).sort({'_id':-1}).limit(6).exec(function(err,docs){})
     if (sort) {
-        goodsModel = Goods.find(params).sort({'salePrice':sort}).skip(skip).limit(pageSize);
+        goodsModel = Goods.find(params).sort({ 'salePrice': sort }).skip(skip).limit(pageSize);
     } else {
         goodsModel = Goods.find(params).skip(skip).limit(pageSize);
     }
-    
-    goodsModel.exec(function (err,doc) {
-        if(err){
-            res.json({
-                status:'1',
-                msg:err.message
-            });
-        }else{
-            res.json({
-                status:'0',
-                msg:'',
-                result:{
-                    count:doc.length,
-                    list:doc
-                }
-            });
-        }
-    })
-    // res.end('hello world');
+
+    goodsModel.exec(function(err, doc) {
+            if (err) {
+                res.json({
+                    status: '1',
+                    msg: err.message
+                });
+            } else {
+                res.json({
+                    status: '0',
+                    msg: '',
+                    result: {
+                        count: doc.length,
+                        list: doc
+                    }
+                });
+            }
+        })
+        // res.end('hello world');
 })
 
-router.post("/addCart", function (req, res, next) {
+router.post("/addCart", function(req, res, next) {
     let userId = '100000077',
         productId = req.body.productId;
-    User.findOne({userId}, (err, userDoc) => {
+    User.findOne({ userId }, (err, userDoc) => {
         if (err) {
             res.json({
                 status: '1',
@@ -98,7 +98,7 @@ router.post("/addCart", function (req, res, next) {
                         }
                     })
                 } else {
-                    Goods.findOne({productId: productId}, (err2, doc2) => {
+                    Goods.findOne({ productId: productId }, (err2, doc2) => {
                         if (err2) {
                             res.json({
                                 status: '1',
