@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var User = require("../models/users");
-require('./../utils/util');
+var utils = require('./../utils/util');
 
 /* GET users listing. */
 router.post("/login", (req, res, next) => {
@@ -16,16 +16,18 @@ router.post("/login", (req, res, next) => {
                 msg: err.message
             });
         } else {
-            console.log(doc);
+            // console.log(doc);
             if (doc) {
                 // 返回cookie
                 res.cookie("userId", doc.userId, {
                     path: "/",
-                    maxAge: 1000 * 60 * 60
+                    maxAge: 1000 * 60 * 60,
+                    signed:true
                 });
                 res.cookie("userName", doc.userName, {
                     path: "/",
-                    maxAge: 1000 * 60 * 60
+                    maxAge: 1000 * 60 * 60,
+                    signed:true
                 });
                 res.json({
                     status: "0",
@@ -44,6 +46,52 @@ router.post("/login", (req, res, next) => {
     });
 });
 
+router.post('/register', (req, res, next) => {
+    const userId = utils.getUniqueId('10'),
+          userName = req.body.userName,
+          userPwd = req.body.userPwd;
+    User.find({userName}, (err, doc) => {
+        if (doc.length) {
+            res.json({
+                status: '10005',
+                msg: '该用户已存在',
+                result: ''
+            })
+        } else {
+            const user = new User({
+                userId,
+                userName,
+                userPwd
+            });
+            user.save((err, doc) => {
+                // console.log(doc);
+                if (err) {
+                    res.json({
+                        status: '1',
+                        msg: err.message
+                    })
+                } else {
+                    res.cookie("userId", doc.userId, {
+                        path: "/",
+                        maxAge: 1000 * 60 * 60
+                    });
+                    res.cookie("userName", doc.userName, {
+                        path: "/",
+                        maxAge: 1000 * 60 * 60
+                    });
+                    res.json({
+                        status: '0',
+                        msg: 'success',
+                        result: {
+                            userName
+                        }
+                    })
+                }
+            })
+        }
+    })
+})
+
 router.post("/logout", (req, res, next) => {
     res.cookie("userId", "", {
         path: "/",
@@ -61,12 +109,12 @@ router.post("/logout", (req, res, next) => {
 });
 
 router.get("/checklogin", (req, res, next) => {
-    if (req.cookies.userId) {
+    if (req.signedCookies.userId) {
         res.json({
             status: "0",
             msg: "",
             result: {
-                userName: req.cookies.userName
+                userName: req.signedCookies.userName
             }
         });
     }
@@ -74,7 +122,8 @@ router.get("/checklogin", (req, res, next) => {
 
 // 获取订单
 router.get("/cartlist", (req, res, next) => {
-    let userId = req.cookies.userId;
+    let userId = req.signedCookies.userId;
+    // console.log(req.signedCookies, userId);
     User.findOne(
         {
             userId
@@ -98,7 +147,7 @@ router.get("/cartlist", (req, res, next) => {
 });
 
 router.post("/cartdel", (req, res, next) => {
-    let userId = req.cookies.userId,
+    let userId = req.signedCookies.userId,
         productId = req.body.productId;
     User.update(
         {
@@ -130,11 +179,11 @@ router.post("/cartdel", (req, res, next) => {
 });
 
 router.post("/cartedit", (req, res, next) => {
-    let userId = req.cookies.userId,
+    let userId = req.signedCookies.userId,
         productId = req.body.productId,
         productNum = req.body.productNum,
         checked = req.body.checked;
-    console.log(checked);
+    // console.log(checked);
     User.update(
         {
             userId,
@@ -163,7 +212,7 @@ router.post("/cartedit", (req, res, next) => {
 });
 
 router.post("/cartCheckAll", (req, res, next) => {
-    let userId = req.cookies.userId,
+    let userId = req.signedCookies.userId,
         checked = req.body.checkAll ? "1" : "0";
     User.findOne({ userId }, (err, user) => {
         if (err) {
@@ -198,7 +247,7 @@ router.post("/cartCheckAll", (req, res, next) => {
 });
 
 router.get("/userAddress", (req, res, next) => {
-    let userId = req.cookies.userId;
+    let userId = req.signedCookies.userId;
     User.findOne({ userId }, (err, doc) => {
         if (err) {
             res.json({
@@ -218,7 +267,7 @@ router.get("/userAddress", (req, res, next) => {
 
 // 设置默认地址
 router.post("/setDefalutAddress", (req, res, next) => {
-    let userId = req.cookies.userId,
+    let userId = req.signedCookies.userId,
         addressId = req.body.addressId;
     if (!addressId) {
         res.json({
@@ -257,7 +306,7 @@ router.post("/setDefalutAddress", (req, res, next) => {
 
 // 删除地址
 router.post("/delAddress", (req, res, next) => {
-    let userId = req.cookies.userId,
+    let userId = req.signedCookies.userId,
         addressId = req.body.addressId;
     User.update(
         {
@@ -289,7 +338,7 @@ router.post("/delAddress", (req, res, next) => {
 });
 
 router.post('/payMent', (req, res, next) => {
-    let userId = req.cookies.userId,
+    let userId = req.signedCookies.userId,
         orderTotal = req.body.orderTotal,
         addressId = req.body.addressId;
     User.findOne({ userId }, (err, user) => {
@@ -311,12 +360,8 @@ router.post('/payMent', (req, res, next) => {
             goodsList = user.cartList.filter(item => {
                 return item.checked == '1';
             })
-            let r1 = Math.floor(Math.random()*10),
-                r2 = Math.floor(Math.random()*10),
-                platform = '168';
-            let sysDate = new Date().Format('yyyyMMddhhmmss'),
-                createDate = new Date().Format('yyyy-MM-dd hh:mm:ss');
-            let orderId = platform + r1 + sysDate + r2;
+            let orderId = utils.getUniqueId('168'),
+                createDate = utils.createDate();
             let order = {
                 orderId,
                 orderTotal: orderTotal,
@@ -348,7 +393,7 @@ router.post('/payMent', (req, res, next) => {
 })
 
 router.get('/orderSuccess', (req, res, next) => {
-    let userId = req.cookies.userId,
+    let userId = req.signedCookies.userId,
         orderId = req.query.orderId;
     User.findOne({ userId }, (err, user) => {
         if (err) {
@@ -377,7 +422,7 @@ router.get('/orderSuccess', (req, res, next) => {
 })
 
 router.get('/cartCount', (req, res, next) => {
-    let userId = req.cookies.userId;
+    let userId = req.signedCookies.userId;
     User.findOne({ userId }, (err, user) => {
         if (err) {
             res.json({

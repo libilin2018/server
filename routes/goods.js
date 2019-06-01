@@ -66,7 +66,7 @@ router.get('/list', function(req, res, next) {
 })
 
 router.post("/addCart", function(req, res, next) {
-    let userId = '100000077',
+    let userId = req.body.userId,
         productId = req.body.productId;
     User.findOne({ userId }, (err, userDoc) => {
         if (err) {

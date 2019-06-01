@@ -19,14 +19,15 @@ app.set('view engine', 'html');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('my_secret'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function (req, res, next) {
-  if (req.cookies.userId) {
+  // console.log(req.signedCookies.userId);
+  if (req.signedCookies.userId) {
     next();
   } else {
-    if (req.originalUrl == '/users/login' || req.originalUrl == '/users/logout' || req.originalUrl.indexOf('/goods/list') > -1) {
+    if (req.originalUrl == '/users/login' || req.originalUrl == '/users/register' || req.originalUrl == '/users/logout' || req.originalUrl.indexOf('/goods/list') > -1) {
       next();
     } else {
       res.json({

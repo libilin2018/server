@@ -1,6 +1,4 @@
-/**
- * Created by jacksoft on 17/4/26.
- */
+
 Date.prototype.Format = function (fmt) {
   var o = {
     "M+": this.getMonth() + 1, //月份
@@ -16,5 +14,15 @@ Date.prototype.Format = function (fmt) {
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
   return fmt;
 }
-
-module.exports = {};
+let createDate = function () {
+  return new Date().Format('yyyy-MM-dd hh:mm:ss');
+}
+let getUniqueId = function (uid) {
+  let r1 = Math.floor(Math.random()*10),
+      r2 = Math.floor(Math.random()*10);
+  let sysDate = new Date().Format('yyyyMMddhhmmss'),
+      createDate = new Date().Format('yyyy-MM-dd hh:mm:ss');
+  return uid + r1 + sysDate + r2;
+}
+exports.getUniqueId = getUniqueId;
+exports.createDate = createDate;
