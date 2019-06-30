@@ -66,8 +66,8 @@ router.get('/list', function(req, res, next) {
 })
 
 router.post("/addCart", function(req, res, next) {
-    let userId = req.body.userId,
-        productId = req.body.productId;
+    let userId = req.signedCookies.userId
+    productId = req.body.productId;
     User.findOne({ userId }, (err, userDoc) => {
         if (err) {
             res.json({
@@ -115,7 +115,7 @@ router.post("/addCart", function(req, res, next) {
                                     productNum: 1,
                                     checked: 1
                                 }
-                                userDoc.cartList.push(newObj);
+                                userDoc.cartList.unshift(newObj);
                                 userDoc.save((err3, doc3) => {
                                     if (err3) {
                                         res.json({

@@ -22,12 +22,12 @@ router.post("/login", (req, res, next) => {
                 res.cookie("userId", doc.userId, {
                     path: "/",
                     maxAge: 1000 * 60 * 60,
-                    signed:true
+                    signed: true
                 });
                 res.cookie("userName", doc.userName, {
                     path: "/",
                     maxAge: 1000 * 60 * 60,
-                    signed:true
+                    signed: true
                 });
                 res.json({
                     status: "0",
@@ -48,9 +48,9 @@ router.post("/login", (req, res, next) => {
 
 router.post('/register', (req, res, next) => {
     const userId = utils.getUniqueId('10'),
-          userName = req.body.userName,
-          userPwd = req.body.userPwd;
-    User.find({userName}, (err, doc) => {
+        userName = req.body.userName,
+        userPwd = req.body.userPwd;
+    User.find({ userName }, (err, doc) => {
         if (doc.length) {
             res.json({
                 status: '10005',
@@ -124,8 +124,7 @@ router.get("/checklogin", (req, res, next) => {
 router.get("/cartlist", (req, res, next) => {
     let userId = req.signedCookies.userId;
     // console.log(req.signedCookies, userId);
-    User.findOne(
-        {
+    User.findOne({
             userId
         },
         (err, doc) => {
@@ -149,11 +148,9 @@ router.get("/cartlist", (req, res, next) => {
 router.post("/cartdel", (req, res, next) => {
     let userId = req.signedCookies.userId,
         productId = req.body.productId;
-    User.update(
-        {
+    User.update({
             userId
-        },
-        {
+        }, {
             $pull: {
                 cartList: {
                     productId
@@ -184,12 +181,10 @@ router.post("/cartedit", (req, res, next) => {
         productNum = req.body.productNum,
         checked = req.body.checked;
     // console.log(checked);
-    User.update(
-        {
+    User.update({
             userId,
             "cartList.productId": productId
-        },
-        {
+        }, {
             "cartList.$.productNum": productNum,
             "cartList.$.checked": checked
         },
@@ -265,6 +260,48 @@ router.get("/userAddress", (req, res, next) => {
     });
 });
 
+router.post("/addAddress", (req, res, next) => {
+    let userId = req.signedCookies.userId,
+        userName = req.body.userName,
+        streetName = req.body.streetName,
+        tel = req.body.tel;
+    console.log(userName, streetName, tel);
+    User.findOne({ userId }, (err, userDoc) => {
+        if (err) {
+            res.json({
+                status: '1',
+                msg: err.message,
+                result: ''
+            })
+        } else {
+            let addressId = utils.getUniqueId('12');
+            let obj = {
+                addressId,
+                userName,
+                streetName,
+                tel,
+                isDefault: false
+            }
+            userDoc.addressList.unshift(obj);
+            userDoc.save((err1, newDoc) => {
+                if (err1) {
+                    res.json({
+                        status: '1',
+                        msg: err1.message,
+                        result: ''
+                    })
+                } else {
+                    res.json({
+                        status: '0',
+                        msg: '添加地址成功',
+                        result: userDoc.addressList
+                    })
+                }
+            })
+        }
+    })
+})
+
 // 设置默认地址
 router.post("/setDefalutAddress", (req, res, next) => {
     let userId = req.signedCookies.userId,
@@ -308,11 +345,9 @@ router.post("/setDefalutAddress", (req, res, next) => {
 router.post("/delAddress", (req, res, next) => {
     let userId = req.signedCookies.userId,
         addressId = req.body.addressId;
-    User.update(
-        {
+    User.update({
             userId
-        },
-        {
+        }, {
             $pull: {
                 addressList: {
                     addressId
@@ -320,19 +355,19 @@ router.post("/delAddress", (req, res, next) => {
             }
         },
         (err, doc) => {
-          if (err) {
-            res.json({
-              status: "1",
-              msg: err.message,
-              result: ""
-            });
-          } else {
-            res.json({
-              status: '0',
-              msg: '',
-              result: doc
-            })
-          }
+            if (err) {
+                res.json({
+                    status: "1",
+                    msg: err.message,
+                    result: ""
+                });
+            } else {
+                res.json({
+                    status: '0',
+                    msg: '',
+                    result: doc
+                })
+            }
         }
     );
 });

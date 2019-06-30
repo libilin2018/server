@@ -1,5 +1,5 @@
 {
-    "editor.lineHeight": 24,
-    "editor.fontLigatures": true,
-    "prettier.tabWidth": 4,
+  "editor.lineHeight": 24,
+  "editor.fontLigatures": true,
+  "prettier.tabWidth": 4
 }

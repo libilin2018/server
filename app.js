@@ -22,21 +22,21 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser('my_secret'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(function (req, res, next) {
-  // console.log(req.signedCookies.userId);
-  if (req.signedCookies.userId) {
-    next();
-  } else {
-    if (req.originalUrl == '/users/login' || req.originalUrl == '/users/register' || req.originalUrl == '/users/logout' || req.originalUrl.indexOf('/goods/list') > -1) {
-      next();
+app.use(function(req, res, next) {
+    // console.log(req.signedCookies.userId);
+    if (req.signedCookies.userId) {
+        next();
     } else {
-      res.json({
-        status: '10001',
-        msg: '请登录',
-        result: ''
-      })
+        if (req.originalUrl == '/users/login' || req.originalUrl == '/users/register' || req.originalUrl == '/users/logout' || req.originalUrl.indexOf('/goods/list') > -1) {
+            next();
+        } else {
+            res.json({
+                status: '10001',
+                msg: '请登录',
+                result: ''
+            })
+        }
     }
-  }
 })
 
 app.use('/', indexRouter);
@@ -45,18 +45,18 @@ app.use('/goods', goods);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+    next(createError(404));
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 module.exports = app;
